@@ -86,6 +86,11 @@ namespace TryTap
             Console.WriteLine($"FibUsingCompletionSourceAsync({pos})={r}");
         }
 
+        /// <summary>
+        /// Use TaskCompletionSource, I have the control of setting the result, exception & cancel
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
         private Task<int> FibUsingCompletionSourceAsync(int pos)
         {
             ShowThreadId("FibUsingCompletionSourceAsync() 1");
