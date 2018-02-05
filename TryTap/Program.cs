@@ -23,6 +23,12 @@ namespace TryTap
             program.UseCompletionSource();
             ShowThreadId("key to next step:Main() 4");
             Console.ReadKey();
+            program.UseCancellationToken();
+            ShowThreadId("key to next step:Main() 5");
+            Console.ReadKey();
+            program.UseProgress();
+            ShowThreadId("key to next step:Main() 6");
+            Console.ReadKey();
         }
 
         private static void ShowThreadId(string context)
@@ -121,5 +127,71 @@ namespace TryTap
             ShowThreadId("FibUsingCompletionSourceAsync() 2");
             return tcs.Task;
         }
+
+        private async void UseCancellationToken()
+        {
+            ShowThreadId("UseCancellationToken() 1");
+            int pos = 100;
+            try
+            {
+                CancellationTokenSource cts = new CancellationTokenSource(10);
+                //cts.Cancel();
+                int r = await FibAsync(pos, cts.Token);
+                ShowThreadId("UseCancellationToken() 2");
+                Console.WriteLine($"UseCancellationToken({pos})={r}");
+            }
+            catch (OperationCanceledException cancelEx)
+            {
+                Console.WriteLine($"UseCancellationToken() cancelled");
+            }
+        }
+
+        private Task<int> FibAsync(int pos, CancellationToken cancellationToken)
+        {
+            ShowThreadId("FibAsync() 1");
+            Task<int> task = Task.Run<int>(() =>
+            {
+                ShowThreadId($"Fib()");
+                Thread.Sleep(20);
+                cancellationToken.ThrowIfCancellationRequested();
+                return Fib(pos);
+            });
+            ShowThreadId("FibAsync() 2");
+            return task;
+        }
+
+        private async void UseProgress()
+        {
+            ShowThreadId("UseProgress() 1");
+            int pos = 100;
+            try
+            {
+                int r = await FibAsync(pos, new Progress<string>((msg)=>ShowThreadId(msg)));
+
+                ShowThreadId("UseProgress() 2");
+                Console.WriteLine($"UseProgress({pos})={r}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"UseProgress() {ex.Message}");
+            }
+        }
+
+        private Task<int> FibAsync(int pos, IProgress<string> progress)
+        {
+            ShowThreadId("FibAsync() 1");
+            Task<int> task = Task.Run<int>(() =>
+            {
+                ShowThreadId($"Fib() 1");
+                progress.Report("Fib() 2");
+                Thread.Sleep(20);
+                ShowThreadId($"Fib() 3");
+                progress.Report("Fib() 4");
+                return Fib(pos);
+            });
+            ShowThreadId("FibAsync() 2");
+            return task;
+        }
+
     }
 }
