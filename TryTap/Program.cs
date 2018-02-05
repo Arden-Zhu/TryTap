@@ -45,10 +45,19 @@ namespace TryTap
         private async void UseCpuTapFuntion()
         {
             ShowThreadId("UseCpuTapFuntion() 1");
-            int pos = 20;
-            int r = await FibAsync(pos);
-            ShowThreadId("UseCpuTapFuntion() 2");
-            Console.WriteLine($"FibAsync({pos})={r}");
+            foreach (int pos in new[] { 20, -1 })
+            {
+                try
+                {
+                    int r = await FibAsync(pos);
+                    ShowThreadId("UseCpuTapFuntion() 2");
+                    Console.WriteLine($"FibAsync({pos})={r}");
+                }
+                catch (Exception ex)
+                {
+                    ShowThreadId($"Exception: {ex.Message}");
+                }
+            }
         }
 
         private int Fib(int pos)
