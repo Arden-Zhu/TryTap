@@ -20,6 +20,9 @@ namespace TryTap
             program.UseCpuTapFuntion();
             ShowThreadId("key to next step:Main() 3");
             Console.ReadKey();
+            program.UseCompletionSource();
+            ShowThreadId("key to next step:Main() 4");
+            Console.ReadKey();
         }
 
         private static void ShowThreadId(string context)
@@ -72,6 +75,36 @@ namespace TryTap
             });
             ShowThreadId("FibAsync() 2");
             return task;
+        }
+
+        private async void UseCompletionSource()
+        {
+            ShowThreadId("UseCompletionSource() 1");
+            int pos = 20;
+            int r = await FibUsingCompletionSourceAsync(pos);
+            ShowThreadId("UseCompletionSource() 2");
+            Console.WriteLine($"FibUsingCompletionSourceAsync({pos})={r}");
+        }
+
+        private Task<int> FibUsingCompletionSourceAsync(int pos)
+        {
+            ShowThreadId("FibUsingCompletionSourceAsync() 1");
+            var tcs = new TaskCompletionSource<int>();
+            Task task = Task.Run(() =>
+            {
+                ShowThreadId($"Fib()");
+                try
+                {
+                    var r = Fib(pos);
+                    tcs.SetResult(r);
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+            });
+            ShowThreadId("FibUsingCompletionSourceAsync() 2");
+            return tcs.Task;
         }
     }
 }
