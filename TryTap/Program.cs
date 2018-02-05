@@ -80,7 +80,7 @@ namespace TryTap
         private async void UseCompletionSource()
         {
             ShowThreadId("UseCompletionSource() 1");
-            int pos = 20;
+            int pos = -1;
             int r = await FibUsingCompletionSourceAsync(pos);
             ShowThreadId("UseCompletionSource() 2");
             Console.WriteLine($"FibUsingCompletionSourceAsync({pos})={r}");
@@ -100,7 +100,8 @@ namespace TryTap
                 }
                 catch (Exception ex)
                 {
-                    tcs.SetException(ex);
+                    ShowThreadId("Exception happens in FibUsingCompletionSourceAsync()");
+                    //tcs.SetException(ex);
                 }
             });
             ShowThreadId("FibUsingCompletionSourceAsync() 2");
